@@ -10,8 +10,7 @@ export default function Home() {
   }
   const router = useRouter();
   const handleSubmitSearch = () => {
-    console.log(searchText);
-    router.push(`/search/${searchText}`);
+    router.push(`/search?query=${searchText}`);
   }
 
   useEffect(() => {
