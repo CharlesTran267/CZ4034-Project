@@ -24,18 +24,18 @@ export default  function SearchPage() {
         router.push(`/search?query=${search}`);
     }
 
-    const handleGetSearchResults = async() => {
+    const handleGetSearchResults = async(params: object) => {
         setLoading(true);
         setResults(null);
         setPage(1);
+        setSources(source_list);
+        setBrand('');
+        setStartDate('');
+        setEndDate('');
         if (!search) return;
         const response = await axios.get(`${backend_url}/search`,
             {
-                params: {
-                    query: search,
-                    rows: 100,
-                    ranked: true,
-                }
+                params: params
             }
         )
         let newResults: SearchResult[] = [];
@@ -46,12 +46,12 @@ export default  function SearchPage() {
                 source = 'Youtube';
             }
             let newResult: SearchResult = {
-                comment_id: result.comment_id[0],
+                comment_id: result.comment_id,
                 source: source,
                 brand: result.brand?result.brand[0]:'',
                 comment: result.comment[0],
-                likes: result.likes[0],
-                timestamp: result.timestamp?result.timestamp[0]:null,
+                likes: result.likes,
+                timestamp: result.timestamp?result.timestamp:null,
                 rank_score: result.rank_score,
                 additional_info: {},
             }
@@ -68,9 +68,77 @@ export default  function SearchPage() {
         setLoading(false);
     }
 
+    const handleSortBy = (sortBy: string) => {
+        let params: { query: string; rows: number; sort_field?: string; sort_order?: string } = {
+            query: query,
+            rows: 50000
+        }
+        if (sortBy === 'Most Liked'){
+            params = {
+                ...params,
+                sort_field: 'likes',
+                sort_order: 'desc'
+            }
+        }else if (sortBy === 'Latest Post'){
+            params = {
+                ...params,
+                sort_field: 'timestamp',
+                sort_order: 'desc'
+            }
+        }else if (sortBy === 'Oldest Post'){
+            params = {
+                ...params,
+                sort_field: 'timestamp',
+                sort_order: 'asc'
+            }
+        }
+        handleGetSearchResults(params);
+    }
+
+    const source_list = ['Reddit', 'Instagram', 'Twitter', 'TikTok', 'Youtube'];
+
+    const [brand, setBrand] = useState<string>('');
+    const [sources, setSources] = useState<string[]>(source_list);
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
+
+    const handleFilter = () => {
+        let params: {query: string; rows: number; brand?: string; sources?: string[]; start_date?: string; end_date?: string} = {
+            query: query,
+            rows: 50000,
+        }
+
+        if (brand !== '' && brand !== null){
+            params = {
+                ...params,
+                brand: brand
+            }
+        }
+        if (sources && sources.length > 0){
+            params = {
+                ...params,
+                sources: sources
+            }
+        }
+
+        if (startDate !=='' && startDate!==null && endDate!=='' && endDate!==null){
+            params = {
+                ...params,
+                start_date: startDate,
+                end_date: endDate
+            }
+        }
+        
+        handleGetSearchResults(params);
+    }
+
     useEffect(() => {
         if (query){
-            handleGetSearchResults();
+            const params = {
+                query: query,
+                rows: 50000
+            }
+            handleGetSearchResults(params);
         }
     }, [query]);
 
@@ -91,7 +159,6 @@ export default  function SearchPage() {
     const [page, setPage] = useState(1);
     const [maxPage, setMaxPage] = useState(1);
     const [currentPageResults, setCurrentPageResults] = useState<SearchResult[]>([]);
-
 
 
     useEffect(() => {
@@ -120,6 +187,13 @@ export default  function SearchPage() {
         }
     },[page])
 
+    const handleSourceChange = (e: React.ChangeEvent<HTMLInputElement>, source: string) => {
+        if (e.target.checked){
+            setSources([...sources, source]);
+        }else{
+            setSources(sources.filter((s) => s !== source));
+        }
+    }
 
     return (
         <div className="flex flex-1 flex-col items-center">
@@ -136,8 +210,61 @@ export default  function SearchPage() {
                 <div className="flex">
                     {results?<h2 className="mr-auto mt-2">There are {results.length} results</h2>:null}
                     <div className="ml-auto">
-                        <button className="btn btn-ghost p-0 mr-4">Filter</button>
-                        <button className="btn btn-ghost p-0">Sort By</button>
+                        <div className="dropdown dropdown-end">
+                            <div tabIndex={0} role="button" className="btn btn-ghost p-0 mr-4">Filter</div>
+                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-40">
+                                <li>
+                                    <details open>
+                                    <summary>Brand</summary>
+                                    <ul>
+                                        <li>
+                                            <input type="text" placeholder="Brand" className="input w-full h-10 max-w-xs" value={brand} onChange={(e)=>setBrand(e.target.value)}/>
+                                        </li>
+                                    </ul>
+                                    </details>
+                                </li>
+                                <li>
+                                    <details open>
+                                    <summary>Source</summary>
+                                    <ul>
+                                        {source_list.map((source) => (
+                                            <li>
+                                                <div className="form-control p-0 m-0 flex">
+                                                    <label className="label cursor-pointer w-full">
+                                                        <span className="label-text mr-2">{source}</span> 
+                                                        <input type="checkbox" defaultChecked className="checkbox" checked={sources.includes(source)} onChange={(e)=>handleSourceChange(e, source)}/>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    </details>
+                                </li>
+                                <li>
+                                    <details open>
+                                    <summary>Date (DD/MM/YYYY)</summary>
+                                    <ul>
+                                        <li>
+                                            <input type="text" placeholder="Start" className="input w-full h-10 max-w-xs" value={startDate} onChange={(e)=>setStartDate(e.target.value)}/>
+                                            <input type="text" placeholder="End" className="input w-full h-10 max-w-xs" value={endDate} onChange={(e)=>setEndDate(e.target.value)}/>
+                                        </li>
+                                    </ul>
+                                    </details>
+                                </li>
+                                <li className="mt-4">
+                                    <button className="btn btn-primary p-0" onClick={handleFilter}>Filter</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className="dropdown dropdown-bottom">
+                            <div tabIndex={0} role="button" className="btn btn-ghost p-0">Sort By</div>
+                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-40">
+                                <li onClick={()=>handleSortBy('Rank Score')}><a>Rank Score</a></li>
+                                <li onClick={()=>handleSortBy('Most Liked')}><a>Most Liked</a></li>
+                                <li onClick={()=>handleSortBy('Latest Post')}><a>Latest Post</a></li>
+                                <li onClick={()=>handleSortBy('Oldest Post')}><a>Oldest Post</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

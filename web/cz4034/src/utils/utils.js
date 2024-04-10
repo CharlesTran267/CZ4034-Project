@@ -18,11 +18,11 @@ export function fixJsonLikeString(jsonLikeString) {
 export function getCommentDetails(result){
   let details = {};
   details['comment'] = result.comment;
+  details['brand'] = result.brand;
   details['source'] = result.source;
 
   let timestamp = null;
   if (result.timestamp !== null){
-    console.log(result.timestamp);
     timestamp = new Date(result.timestamp);
   }
 
