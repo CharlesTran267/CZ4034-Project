@@ -1,4 +1,5 @@
 export type SearchResult = {
+    comment_id: string,
     source: string,
     brand: string,
     comment: string,

@@ -27,39 +27,39 @@ export default  function SearchPage() {
     const handleGetSearchResults = async() => {
         setLoading(true);
         setResults(null);
+        setPage(1);
         if (!search) return;
         const response = await axios.get(`${backend_url}/search`,
             {
                 params: {
                     query: search,
-                    rows: 100000,
+                    rows: 10,
                     ranked: true,
                 }
             }
         )
         let newResults: SearchResult[] = [];
         response.data.map((result: any) => {
-            let source = result.source;
+            let source = result.source[0];
             if (source.includes('youtube')){
                 console.log(source);
                 source = 'Youtube';
             }
-
             let newResult: SearchResult = {
+                comment_id: result.comment_id[0],
                 source: source,
-                brand: result.brand,
-                comment: result.comment,
+                brand: result.brand?result.brand[0]:'',
+                comment: result.comment[0],
                 rank_score: result.rank_score,
                 additional_info: {},
             }
             try{
                 const additional_info = JSON.parse(fixJsonLikeString(result.additional_info[0]));
-                if (source === 'Youtube'){
-                   additional_info['url'] = result.source;
-                }
                 newResult.additional_info = additional_info;
-            }catch(e){}
-
+            }catch(e){
+                console.log(e);
+                console.log(fixJsonLikeString(result.additional_info[0]));
+            }
             newResults.push(newResult);
         })
         setResults(newResults);
@@ -147,7 +147,7 @@ export default  function SearchPage() {
                             <SearchCard result={result}/>
                         ))}
                     </div>
-                    <div className="join mt-auto mb-4">
+                    <div className="join mt-auto mb-2">
                         <button className="join-item btn" onClick={()=> setPage(1)}>First</button>
                         <button className="join-item btn" onClick={()=> page-1<1?setPage(1):setPage(page-1)}>«</button>
                         {Array.from({ length: maxPage-curMinPage+1>maxDisplayPage?maxDisplayPage:maxPage-curMinPage+1 }, (_, i) => curMinPage + i).map(
