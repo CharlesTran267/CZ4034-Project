@@ -21,23 +21,13 @@ export function getCommentDetails(result){
   details['source'] = result.source;
 
   let timestamp = null;
-  let likes = null;
-  if (result.source === 'Reddit'){
-    timestamp = new Date(result.additional_info['timestamp'])
-    likes = result.additional_info['upvote'];
-  }else if (result.source === 'TikTok'){
-    timestamp = new Date(result.additional_info['timestamp'].replace(' ', 'T'));
-    likes = result.additional_info['likes'];
-  }else if (result.source === 'Instagram'){
-    timestamp = new Date(result.additional_info['timestamp']);
-    likes = result.additional_info['likes'];
-  }else if (result.source === 'Twitter'){
-    timestamp = new Date(result.additional_info['Timestamp']);
-    likes = result.additional_info['Likes'];
+  if (result.timestamp !== null){
+    console.log(result.timestamp);
+    timestamp = new Date(result.timestamp);
   }
 
   details['timestamp'] = timestamp;
-  details['likes'] = likes;
+  details['likes'] = result.likes;
 
   if (result.source === 'Youtube'){
     details['title'] = result.comment.split('+')[0];

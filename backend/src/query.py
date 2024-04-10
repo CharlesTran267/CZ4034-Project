@@ -21,7 +21,11 @@ def search_solr(query, rows = 10, ranked = True, startDate = None, endDate = Non
     
     params = {
         'q': query,
-        'rows': rows if (not ranked and startDate is None and endDate is None) else 50000  # Limiting the number of rows to retrieve
+        'defType': 'edismax',
+        'qf': 'comment',
+        # 'bf': 'log(sum(likes,1))',
+        # 'fl': 'comment_id,score',
+        'rows': rows
     }
 
     try:

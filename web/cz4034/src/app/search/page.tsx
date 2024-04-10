@@ -33,7 +33,7 @@ export default  function SearchPage() {
             {
                 params: {
                     query: search,
-                    rows: 10,
+                    rows: 100,
                     ranked: true,
                 }
             }
@@ -50,6 +50,8 @@ export default  function SearchPage() {
                 source: source,
                 brand: result.brand?result.brand[0]:'',
                 comment: result.comment[0],
+                likes: result.likes[0],
+                timestamp: result.timestamp?result.timestamp[0]:null,
                 rank_score: result.rank_score,
                 additional_info: {},
             }
