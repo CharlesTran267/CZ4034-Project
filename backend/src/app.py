@@ -16,6 +16,7 @@ def search():
     sort_order = request.args.get('sort_order')
     sources = request.args.getlist('sources[]')
     brand = request.args.get('brand')
+    polarity = request.args.get('polarity')
 
     if query is None:
         return jsonify({'error': 'Missing query parameter'}), 400
@@ -37,7 +38,7 @@ def search():
     if sort_field is not None and sort_order is None:
         return jsonify({'error': 'Missing sort_order parameter'}), 400
 
-    solr_data = search_solr(query, rows, startDate, endDate, sort_field, sort_order, brand, sources)
+    solr_data = search_solr(query, rows, startDate, endDate, sort_field, sort_order, brand, sources, polarity)
     if solr_data is None:
         return jsonify({'error': 'Error querying Solr'}), 500
     return jsonify(solr_data)

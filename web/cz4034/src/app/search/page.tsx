@@ -24,6 +24,8 @@ export default  function SearchPage() {
         router.push(`/search?query=${search}`);
     }
 
+    const [executionTime, setExecutionTime] = useState<string>('');
+
     const handleGetSearchResults = async(params: object) => {
         setLoading(true);
         setResults(null);
@@ -32,7 +34,9 @@ export default  function SearchPage() {
         setBrand('');
         setStartDate('');
         setEndDate('');
+        setPolarity('All');
         if (!search) return;
+        const startTime = performance.now();
         const response = await axios.get(`${backend_url}/search`,
             {
                 params: params
@@ -40,6 +44,7 @@ export default  function SearchPage() {
         )
         let newResults: SearchResult[] = [];
         response.data.map((result: any) => {
+            console.log(result);
             let source = result.source[0];
             if (source.includes('youtube')){
                 console.log(source);
@@ -52,7 +57,9 @@ export default  function SearchPage() {
                 comment: result.comment[0],
                 likes: result.likes,
                 timestamp: result.timestamp?result.timestamp:null,
-                rank_score: result.rank_score,
+                score: result.score,
+                subjectivity: result.subjectivity,
+                polarity: result.polarity,
                 additional_info: {},
             }
             try{
@@ -64,6 +71,8 @@ export default  function SearchPage() {
             }
             newResults.push(newResult);
         })
+        const endTime = performance.now();
+        setExecutionTime(((endTime - startTime) / 1000).toFixed(2));
         setResults(newResults);
         setLoading(false);
     }
@@ -96,14 +105,17 @@ export default  function SearchPage() {
     }
 
     const source_list = ['Reddit', 'Instagram', 'Twitter', 'TikTok', 'Youtube'];
+    const polarity_list = ['All', 'Positive', 'Negative', 'Neutral'];
 
     const [brand, setBrand] = useState<string>('');
     const [sources, setSources] = useState<string[]>(source_list);
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
+    const [polarity, setPolarity] = useState<string>('All');
+
 
     const handleFilter = () => {
-        let params: {query: string; rows: number; brand?: string; sources?: string[]; start_date?: string; end_date?: string} = {
+        let params: {query: string; rows: number; brand?: string; sources?: string[]; start_date?: string; end_date?: string; polarity?: string} = {
             query: query,
             rows: 50000,
         }
@@ -126,6 +138,13 @@ export default  function SearchPage() {
                 ...params,
                 start_date: startDate,
                 end_date: endDate
+            }
+        }
+
+        if (polarity !== 'All'){
+            params = {
+                ...params,
+                polarity: polarity
             }
         }
         
@@ -198,7 +217,7 @@ export default  function SearchPage() {
     return (
         <div className="flex flex-1 flex-col items-center">
             <div className="mx-auto flex max-w-2xl flex-col items-center">
-                <h1 className="m-6 mt-4 text-4xl font-bold text-primary">App Name</h1>
+                <h1 className="m-6 mt-4 text-4xl font-bold text-primary">{process.env.NEXT_PUBLIC_APP_NAME}</h1>
             </div>
             <div className="my-2 flex w-[800px] flex-col gap-2 transition-all">
                 <label className="input input-bordered flex items-center gap-2 h-15">
@@ -208,13 +227,13 @@ export default  function SearchPage() {
                     </button>
                 </label>
                 <div className="flex">
-                    {results?<h2 className="mr-auto mt-2">There are {results.length} results</h2>:null}
+                    {results?<h2 className="mr-auto mt-2">There are {results.length} results ({executionTime} seconds)</h2>:null}
                     <div className="ml-auto">
                         <div className="dropdown dropdown-end">
                             <div tabIndex={0} role="button" className="btn btn-ghost p-0 mr-4">Filter</div>
                             <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-40">
                                 <li>
-                                    <details open>
+                                    <details>
                                     <summary>Brand</summary>
                                     <ul>
                                         <li>
@@ -224,7 +243,7 @@ export default  function SearchPage() {
                                     </details>
                                 </li>
                                 <li>
-                                    <details open>
+                                    <details>
                                     <summary>Source</summary>
                                     <ul>
                                         {source_list.map((source) => (
@@ -241,7 +260,7 @@ export default  function SearchPage() {
                                     </details>
                                 </li>
                                 <li>
-                                    <details open>
+                                    <details>
                                     <summary>Date (DD/MM/YYYY)</summary>
                                     <ul>
                                         <li>
@@ -249,6 +268,26 @@ export default  function SearchPage() {
                                             <input type="text" placeholder="End" className="input w-full h-10 max-w-xs" value={endDate} onChange={(e)=>setEndDate(e.target.value)}/>
                                         </li>
                                     </ul>
+                                    </details>
+                                </li>
+                                <li>
+                                    
+                                </li>
+                                <li>
+                                    <details>
+                                        <summary>Polarity</summary>
+                                        <ul>
+                                            {polarity_list.map((p) => (
+                                                <li>
+                                                    <div className="form-control p-0 m-0 flex">
+                                                        <label className="label cursor-pointer w-full">
+                                                            <span className="label-text mr-2">{p}</span> 
+                                                            <input type="radio" name="radio-10" className="radio" checked={p==polarity} onChange={()=>setPolarity(p)}/>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </details>
                                 </li>
                                 <li className="mt-4">

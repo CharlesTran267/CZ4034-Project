@@ -5,7 +5,7 @@ export default function Header() {
     <header className="navbar bg-base-300">
       <div className="navbar-start">
         <Link className="btn text-xl text-neutral" href="/">
-          App Name
+          {process.env.NEXT_PUBLIC_APP_NAME}
         </Link>
       </div>
     </header>

@@ -11,7 +11,7 @@ core_name = os.getenv('SOLR_CORE')
 solr_url = os.getenv('SOLR_URL')
 query_url = f'{solr_url}/{core_name}/select'
 
-def search_solr(query, rows = 50000, startDate = None, endDate = None, sort_field = None, sort_order = None, brand = None, sources = None):
+def search_solr(query, rows = 50000, startDate = None, endDate = None, sort_field = None, sort_order = None, brand = None, sources = None, polarity = None):
     # Construct the query parameters
     if len(query.split(':')) == 1:
         query = f'comment:{query}'
@@ -40,8 +40,18 @@ def search_solr(query, rows = 50000, startDate = None, endDate = None, sort_fiel
     
     if sources is not None and len(sources) > 0:
         params['fq'].append('source:(' + '+OR+'.join(sources) + ')')
-
-    print(params)
+    
+    if polarity is not None:
+        polarity = polarity.lower()
+        if polarity == 'positive':
+            params['fq'].append('subjectivity:true')
+            params['fq'].append('polarity:true')
+        elif polarity == 'negative':
+            params['fq'].append('subjectivity:true')
+            params['fq'].append('polarity:false')
+        elif polarity == 'neutral':
+            params['fq'].append('subjectivity:false')
+        
 
     try:
         # Send GET request to Solr

@@ -21,6 +21,16 @@ export function getCommentDetails(result){
   details['brand'] = result.brand;
   details['source'] = result.source;
 
+  if (result.subjectivity === true){
+    if (result.polarity === true){
+      details['polarity'] = 'Positive';
+    }else{
+      details['polarity'] = 'Negative';
+    }
+  }else{
+    details['polarity'] = 'Neutral';
+  }
+
   let timestamp = null;
   if (result.timestamp !== null){
     timestamp = new Date(result.timestamp);

@@ -28,9 +28,9 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
-        <h1 className="m-6 text-6xl font-bold text-primary">App Name</h1>
+        <h1 className="m-6 text-6xl font-bold text-primary">{process.env.NEXT_PUBLIC_APP_NAME}</h1>
         <h1 className="text-3xl font-bold text-neutral">
-          App short introduction go here
+          Uniting fashion insights in one place
         </h1>
       </div>
       <div className="mx-auto my-12 flex w-[600px] flex-col gap-2 transition-all">

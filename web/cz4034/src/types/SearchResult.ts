@@ -6,5 +6,7 @@ export type SearchResult = {
     likes: number | null,
     timestamp: string | null,
     additional_info: object,
-    rank_score: number | null,
+    score: number | null,
+    subjectivity: boolean | null,
+    polarity: boolean | null,
 }

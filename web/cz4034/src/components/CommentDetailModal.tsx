@@ -15,10 +15,13 @@ export default function CommentDetailModal({result} : {result: SearchResult}) {
                 })}
                 <div className="modal-action">
                 <form method="dialog">
-                    <button className="btn">Close</button>
+                    <button className="btn btn-primary">Close</button>
                 </form>
                 </div>
             </div>
+            <form method="dialog" className="modal-backdrop">
+                <button>close</button>
+            </form>
         </dialog>
     )
 }
