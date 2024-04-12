@@ -28,12 +28,12 @@ def search_solr(query, rows = 50000, startDate = None, endDate = None, sort_fiel
         'rows': rows,
         'fq': []
     }
-
-    if startDate is not None and endDate is not None:
-        params['fq'].append(f'timestamp:[{startDate} TO {endDate}]')
     
     if sort_field is not None and sort_order is not None:
         params['sort'] = f'{sort_field} {sort_order}'
+
+    if startDate is not None and endDate is not None:
+        params['fq'].append(f'timestamp:[{startDate} TO {endDate}]')
 
     if brand is not None:
         params['fq'].append(f'brand:{brand}')
