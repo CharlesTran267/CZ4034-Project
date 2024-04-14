@@ -9,6 +9,9 @@ This folder contains the necessary files for the classification component of the
 3. `ensemble_model.ipynb`: This notebook contains the final ensemble model used to label the unannotated data.
 4. `ml_classifier.ipynb`: This notebook contains the training and evaluation of the traditional machine learning models. Also contains the inter-annotator score computation and random guessing.
 5. `roberta_classifier_final.ipynb`: This notebook contains the training and evaluation of the RoBERTa classifier.
+6. `LSTM_subjectivity.ipynb`: This notebook contains the training and evaluation of the LSTM classifier for subjectivity detection.
+7. `LSTM_polarity.ipynb`: This notebook contains the training and evaluation of the LSTM classifier for polarity detection.
+8. `models/`: Contains the saved models for the BERT and RoBERTa classifiers as well as vectorizers.
 
 
 ## Dependencies
